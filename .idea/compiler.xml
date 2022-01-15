@@ -9,5 +9,8 @@
         <module name="ChineseCheckersServer" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ChineseCheckersServer" target="15" />
+    </bytecodeTargetLevel>
   </component>
 </project>

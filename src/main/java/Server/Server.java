@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 public class Server {
     private static Board b = initBoard();
-    static int PORT = 8007;
+    static int PORT = 8080;
     static int now_players = 0;
     static int max_players = 0;
     static int turnIndex = 0;
@@ -633,46 +633,41 @@ public class Server {
         } else {
             int abs_x = new_x - curr_x;
             int abs_y = new_y - curr_y;
-            if ((Math.abs(new_x) - Math.abs(curr_x) > 2) || (Math.abs(new_x) - Math.abs(curr_x) < -2) && abs_y != 0 ) {
-                return false;
-            } else if ( (Math.abs(new_y) - Math.abs(curr_y) > 2) || (Math.abs(new_y) - Math.abs(curr_y) < -2) || abs_y < -2){
-                return false;
-            } else {
-                if(abs_x == 2 && abs_y == 2 && b.getPoint(curr_x + 1, curr_y + 1).getIsUsed()) {
-                    return true;
-                }
 
-                if(abs_x == -2 && abs_y == 2 && b.getPoint(curr_x - 1, curr_y + 1).getIsUsed()) {
-                    return true;
-                }
+            if (abs_x == 2 && abs_y == 2 && b.getPoint(curr_x + 1, curr_y + 1).getIsUsed()) {
+                return true;
+            }
 
-                if(abs_x == 2 && abs_y == -2 && b.getPoint(curr_x + 1, curr_y - 1).getIsUsed()) {
-                    return true;
-                }
+            if (abs_x == -2 && abs_y == 2 && b.getPoint(curr_x - 1, curr_y + 1).getIsUsed()) {
+                return true;
+            }
 
-                if(abs_x == -2 && abs_y == -2 && b.getPoint(curr_x - 1, curr_y - 1).getIsUsed()) {
-                    return true;
-                }
+            if (abs_x == 2 && abs_y == -2 && b.getPoint(curr_x + 1, curr_y - 1).getIsUsed()) {
+                return true;
+            }
 
-                if(abs_x == 4 && abs_y == 0 && b.getPoint(curr_x + 2, curr_y).getIsUsed()){
-                    return true;
-                }
+            if (abs_x == -2 && abs_y == -2 && b.getPoint(curr_x - 1, curr_y - 1).getIsUsed()) {
+                return true;
+            }
 
-                if(abs_x == -4 && abs_y == 0 && b.getPoint(curr_x - 2, curr_y).getIsUsed()){
-                    return true;
-                }
+            if (abs_x == 4 && abs_y == 0 && b.getPoint(curr_x + 2, curr_y).getIsUsed()) {
+                return true;
+            }
 
-                if((abs_x == 2 && abs_y == 0) || (abs_x == -2 && abs_y == 0)){
-                    return true;
-                }
+            if (abs_x == -4 && abs_y == 0 && b.getPoint(curr_x - 2, curr_y).getIsUsed()) {
+                return true;
+            }
 
-                if((abs_x == 1 && abs_y == 1) || (abs_x == -1 && abs_y == 1)){
-                    return true;
-                }
+            if ((abs_x == 2 && abs_y == 0) || (abs_x == -2 && abs_y == 0)) {
+                return true;
+            }
 
-                if((abs_x == 1 && abs_y == -1) || (abs_x == -1 && abs_y == -1)){
-                    return true;
-                }
+            if ((abs_x == 1 && abs_y == 1) || (abs_x == -1 && abs_y == 1)) {
+                return true;
+            }
+
+            if ((abs_x == 1 && abs_y == -1) || (abs_x == -1 && abs_y == -1)) {
+                return true;
             }
         }
         return false;
