@@ -1,3 +1,5 @@
+package Server;
+
 public class Point {
     private int pos_x;
     private int pos_y;
@@ -27,6 +29,30 @@ public class Point {
 
     public Color getTeamId() {
         return this.team_id;
+    }
+
+    public String getTextTeamId(String id) {
+        if(this.team_id == Color.GREY) return "GREY";
+        if(this.team_id == Color.RED) return "RED";
+        if(this.team_id == Color.BLACK) return "BLACK";
+        if(this.team_id == Color.BLUE) return "BLUE";
+        if(this.team_id == Color.GREEN) return "GREEN";
+        if(this.team_id == Color.WHITE) return "WHITE";
+        if(this.team_id == Color.YELLOW) return "YELLOW";
+
+        return "";
+    }
+
+    public String getTextUsedTeamId() {
+        if(this.used_team_id == Color.GREY) return "GREY";
+        if(this.used_team_id == Color.RED) return "RED";
+        if(this.used_team_id == Color.BLACK) return "BLACK";
+        if(this.used_team_id == Color.BLUE) return "BLUE";
+        if(this.used_team_id == Color.GREEN) return "GREEN";
+        if(this.used_team_id == Color.WHITE) return "WHITE";
+        if(this.used_team_id == Color.YELLOW) return "YELLOW";
+
+        return "";
     }
 
     public Color getUsedTeamId(){

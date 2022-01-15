@@ -1,3 +1,5 @@
+package Server;
+
 public class Player {
     private Color id;
     private Color opponent_id;
@@ -10,6 +12,18 @@ public class Player {
 
     public Color getId() {
         return this.id;
+    }
+
+    public String getTextId() {
+        if(this.id == Color.GREY) return "GREY";
+        if(this.id == Color.RED) return "RED";
+        if(this.id == Color.BLACK) return "BLACK";
+        if(this.id == Color.BLUE) return "BLUE";
+        if(this.id == Color.GREEN) return "GREEN";
+        if(this.id == Color.WHITE) return "WHITE";
+        if(this.id == Color.YELLOW) return "YELLOW";
+
+        return "";
     }
 
     public Color getOpponentId() {
