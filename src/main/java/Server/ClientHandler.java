@@ -5,12 +5,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 
+/** Class which is used like ClientHandler, catch user request and send responses */
 public class ClientHandler implements Runnable {
     private Socket client;
     private BufferedReader in;
     private PrintWriter out;
+    private String socket_color = "";
+
+    /** Close BufferReader, PrintWriter and socket */
+    private void closeAll() throws IOException {
+        out.close();
+        in.close();
+        client.close();
+    }
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.client = clientSocket;
@@ -52,6 +60,12 @@ public class ClientHandler implements Runnable {
                         }
                     } else {
                         out.println("JOIN BAD");
+                        closeAll();
+                        for(int i = 0; i < Server.getClients().size(); i++){
+                            if(Server.getClients().get(i).client == client)
+                                Server.dropClient(i);
+                        }
+                        return;
                     }
 
                 } else if (request.contains("COLOR")) {
@@ -59,6 +73,7 @@ public class ClientHandler implements Runnable {
                     String[] color_arr = request.split(" ");
                     String color_str = color_arr[1];
 
+                    socket_color = color_str;
                     Server.usedColors.push(color_str);
 
                     //Sending used Colors to all connected clients
@@ -96,6 +111,7 @@ public class ClientHandler implements Runnable {
                             Server.updateBoard(Integer.parseInt(command[1]), Integer.parseInt(command[2]),
                                     Integer.parseInt(command[3]), Integer.parseInt(command[4]));
                             out.println("MOVE OK");
+
                             for (ClientHandler clientHandler : Server.getClients()) {
                                 if (clientHandler.client != client)
                                     clientHandler.out.println("STEP " + command[1] + " " + command[2] + " " + command[3] + " " + command[4] + " " +
@@ -108,17 +124,30 @@ public class ClientHandler implements Runnable {
 
                             if (mod_x <= 1 && mod_y <= 1){
                                 Server.wasMadeSingleTurn = true;
+                                out.println("FINISH TURN");
                                 System.out.print("[SERVER] Made Single Turn");
                             }
 
                             if (Server.checkPlayersScore() != null) {
-                                for (ClientHandler clientHandler : Server.getClients()) {
-                                    if (clientHandler.client != client)
-                                        clientHandler.out.println("YOU LOST");
-                                }
                                 out.println("YOU WON");
-                                System.out.println("[SERVER] GAME OVER");
-                                Server.isGameOver = true;
+                                Server.now_players--;
+                                for(int i = 0; i < Server.getClients().size(); i++){
+                                    if(Server.getClients().get(i).client == client){
+                                        Server.dropClient(i);
+                                        Server.dropPlayer(socket_color);
+                                    }
+                                }
+
+
+                                if (Server.now_players == 1){
+                                    Server.isGameOver = true;
+                                    Server.getClients().get(0).out.println("YOU LOST");
+                                    Server.getClients().get(0).out.close();
+                                    Server.getClients().get(0).in.close();
+                                    Server.getClients().get(0).client.close();
+                                }
+
+                                closeAll();
                             }
                         } else {
                             out.println("MOVE BAD");
@@ -131,9 +160,8 @@ public class ClientHandler implements Runnable {
                     System.out.println("[SERVER] MAX_PLAYERS: " + Server.max_players);
                 } else if (request.contains("EXIT")) {
                     String exit_id = (request.split(" "))[1];
-                    ArrayList<ClientHandler> clients = Server.getClients();
                     for (int i = 0; i < Server.getClients().size(); i++) {
-                        if (clients.get(i).client == client) {
+                        if (Server.getClients().get(i).client == client) {
                             Server.dropClient(i);
                             Server.dropPlayer(exit_id);
                         }
@@ -144,6 +172,13 @@ public class ClientHandler implements Runnable {
                     for (ClientHandler clientHandler : Server.getClients()) {
                         clientHandler.out.println("DELETE " + exit_id);
                     }
+
+                    if(Server.now_players == 1){
+                        Server.getClients().get(0).out.println("YOU WON");
+                        Server.isGameOver = true;
+                        closeAll();
+                    }
+
                     System.out.println("[SERVER] All clients know about player leave");
                 } else if (request.contains("FINISH")) {
                     System.out.println("[SERVER] FINISH request accepted");
@@ -154,12 +189,30 @@ public class ClientHandler implements Runnable {
                 }
             }
         } catch (IOException e) {
-            System.err.println("IOException in client handler");
-            System.err.println(e.getStackTrace());
+            Server.now_players--;
+            int i = 0;
+            for(ClientHandler clientHandler : Server.getClients()){
+                i++;
+                clientHandler.out.println("DELETE " + socket_color);
+                if(clientHandler.client == client){
+                    Server.dropClient(i);
+                }
+            }
+            Server.dropPlayer(socket_color);
+
+            if(Server.now_players == 1){
+                Server.getClients().get(0).out.println("YOU WON");
+                Server.isGameOver = true;
+                try {
+                    closeAll();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+            System.out.println("[SERVER] Client disconnected, now players: " + Server.now_players);
         } finally {
-            out.close();
             try {
-                in.close();
+                closeAll();
             } catch (IOException e) {
                 e.printStackTrace();
             }

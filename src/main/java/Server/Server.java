@@ -14,19 +14,31 @@ public class Server {
     static int PORT = 8080;
     static int now_players = 0;
     static int max_players = 0;
+
+    /** Variable used to watch under sequence of actions */
     static int turnIndex = 0;
+
     static boolean isServerCreated = false;
     static boolean isGameOver = false;
+
+    /** Variable which is set to true when player already did short step */
     static boolean wasMadeSingleTurn = false;
+
+    /** Stack with used colors */
     static Stack<String> usedColors = new Stack<>();
 
+    /** Function which toggle Boolean variable IsServerCreated */
     static void toggleCreateStatus() {
         isServerCreated = !isServerCreated;
     }
 
+    /** Function which return board
+     * @return Board*/
     static Board getBoard() {
         return b;
     }
+
+    /** Function which generate clear board*/
     static Board initBoard() {
 
         ArrayList<Row> ROWS = new ArrayList<>();
@@ -362,6 +374,8 @@ public class Server {
         Board b = new Board(ROWS);
         return b;
     }
+
+    /** Function which fill players points to board*/
     static void addPlayersToBoard(Stack<String> colors) {
 
         for(String color : colors){
@@ -620,6 +634,12 @@ public class Server {
             }
         }
     }
+
+    /** Function which update board under player step
+     * @param curr_x Old x
+     * @param curr_y Old y
+     * @param new_x Old x
+     * @param new_y Old x*/
     static void updateBoard(int curr_x, int curr_y, int new_x, int new_y) {
         Color cur_id = b.getPoint(curr_x, curr_y).getUsedTeamId();
         b.getPoint(curr_x, curr_y).toggleIsUsed();
@@ -627,6 +647,12 @@ public class Server {
         b.getPoint(new_x, new_y).toggleIsUsed();
         b.getPoint(new_x, new_y).changeUsedTeamId(cur_id);
     }
+
+    /** Function which check if player can do step which he want
+     * @param curr_x Old x
+     * @param curr_y Old y
+     * @param new_x Old x
+     * @param new_y Old x */
     static Boolean checkIsPossible(int curr_x, int curr_y, int new_x, int new_y) {
         if(b.getPoint(new_x, new_y).getIsUsed()){
             return false;
@@ -672,6 +698,9 @@ public class Server {
         }
         return false;
     }
+
+    /** Function which delete all points of player with current id
+     * @param id String with Id like "RED" or another */
     static void dropPlayer(String id){
         ArrayList<Row> rows = b.getRows();
 
@@ -684,10 +713,16 @@ public class Server {
             }
         }
     }
+
+    /** Function which return random int from 0 to 100
+     * @return int Number from 0 to 100*/
     static int selectFirstTurnId(){
         return (int) ((Math.random() * (100)) + 0);
     }
 
+    /** Function which search for player with id
+     * @param id Color id of searched client
+     * @return Player Player with Color id in param*/
     static Player getPlayer(Color id){
         for(Player player : players){
             if(player.getId() == id)
@@ -695,6 +730,9 @@ public class Server {
         }
         return null;
     }
+
+    /** Function which check players score and if anybody has 10 points returns his color
+     * @return Color Color id of winner*/
     static Color checkPlayersScore() {
 
         for(Player player : players){
@@ -727,7 +765,11 @@ public class Server {
 
         return null;
     }
+
+    /** ArrayList of created players */
     static ArrayList<Player> players = new ArrayList<>();
+
+    /** Function which check used color and fill the board with player's color */
     static void createPlayers() {
         for(String color : usedColors){
             if(color.equals("RED")){
@@ -806,15 +848,25 @@ public class Server {
         }
     }
 
+    /** ArrayList of connected clients */
     private static ArrayList<ClientHandler> clients = new ArrayList<>();
+
+    /** Pool with fixed tread */
     private static ExecutorService pool = Executors.newFixedThreadPool(6);
+
+    /** Function which returns ArrayList of clients */
     static ArrayList<ClientHandler> getClients() {
             return clients;
     }
+
+    /** Function which delete client from ArrayList of clients
+     * @param index Index of client you want to delete */
     static void dropClient(int index) {
         clients.remove(index);
     }
 
+
+    /** Main function which starts server */
     public static void main(String[] args) throws IOException {
 
         ServerSocket listener = new ServerSocket(PORT);
